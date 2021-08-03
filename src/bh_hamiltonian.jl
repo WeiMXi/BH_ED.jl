@@ -45,6 +45,22 @@ function fill_H_μ_U!(H, the_model::BH_Model)
         # H[i, i] = H[i, i] + the_model.μ*( -1.5*the_num + 0.5*the_num^2)
     end
     true
+
+
+        
+    for j in 1:length(the_model.states)
+        the_sum = 0.0
+        for i in 1:the_model.N
+            the_num = num_of_position(the_model.states[j][i], the_model.Lp)
+            the_sum = the_sum - (0.5*the_model.U + the_model.μ)*the_num + 0.5*the_model.U*(the_num^2)
+        end
+        H[j, j] = H[j, j] + the_sum
+    end
+
+        
+
+
+    true
 end
 
 function fill_H_J!(H, the_model::BH_Model)
