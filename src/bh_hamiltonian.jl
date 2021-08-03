@@ -39,13 +39,6 @@ end
 
 
 function fill_H_μ_U!(H, the_model::BH_Model)
-    for i in 1:length(the_model.states)
-        the_num = total_num_particle(the_model.states[i], the_model.N, the_model.Lp)
-        H[i, i] = H[i, i] - (0.5*the_model.U + the_model.μ)*the_num + 0.5*the_model.U*(the_num^2)
-        # H[i, i] = H[i, i] + the_model.μ*( -1.5*the_num + 0.5*the_num^2)
-    end
-    true
-
 
         
     for j in 1:length(the_model.states)
@@ -56,9 +49,6 @@ function fill_H_μ_U!(H, the_model::BH_Model)
         end
         H[j, j] = H[j, j] + the_sum
     end
-
-        
-
 
     true
 end
