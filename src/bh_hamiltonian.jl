@@ -38,11 +38,13 @@ end
 end
 
 
-function fill_H_μ!(H, the_model::BH_Model)
+function fill_H_μ_U!(H, the_model::BH_Model)
     for i in 1:length(the_model.states)
         the_num = total_num_particle(the_model.states[i], the_model.N, the_model.Lp)
-        H[i, i] = H[i, i] + the_model.μ*( -1.5*the_num + 0.5*the_num^2)
+        H[i, i] = H[i, i] - (0.5*the_model.U + the_model.μ)*the_num + 0.5*the_model.U*(the_num^2)
+        # H[i, i] = H[i, i] + the_model.μ*( -1.5*the_num + 0.5*the_num^2)
     end
+    true
 end
 
 function fill_H_J!(H, the_model::BH_Model)
@@ -62,11 +64,13 @@ function fill_H_J!(H, the_model::BH_Model)
         end
 
     end
+    true
+
 end
 
 
 # i产生, j湮灭
-function give_index_cr_an(states::Vector{String}, label::Int, i::Int, j::Int, N::Int, Lp::Int)
+@memoize function give_index_cr_an(states::Vector{String}, label::Int, i::Int, j::Int, N::Int, Lp::Int)
     the_state_s = states[label]
     i, j = adjust_index_for_pbc(i, j, N)
     i_num = num_of_position(the_state_s[end - i + 1], Lp)
@@ -84,10 +88,22 @@ function give_index_cr_an(states::Vector{String}, label::Int, i::Int, j::Int, N:
 end
 
 function fill_H_V!(H, the_model::BH_Model)
-    for i in 1:length(the_model.states)
-        i, j = adjust_index_for_pbc(i, i + 1, the_model.N)
-        H[i, i] = H[i, i] + the_model.V*total_num_particle(the_model.states[i], the_model.N, the_model.Lp)*total_num_particle(the_model.states[j], the_model.N, the_model.Lp)
+
+    for j in 1:length(the_model.states)
+        the_sum = 0.0
+        for i in 1:the_model.N
+            x, y = adjust_index_for_pbc(i, i + 1, the_model.N)
+            the_sum = the_sum + the_model.V*num_of_position(the_model.states[j][x], the_model.Lp)*num_of_position(the_model.states[j][y], the_model.Lp)
+        end
+        H[j, j] = H[j, j] + the_sum
     end
+
+    # for i in 1:length(the_model.states)
+    #     i, j = adjust_index_for_pbc(i, i + 1, the_model.N)
+    #     H[i, i] = H[i, i] + the_model.V*total_num_particle(the_model.states[i], the_model.N, the_model.Lp)*total_num_particle(the_model.states[j], the_model.N, the_model.Lp)
+    # end
+    true
+
 end
 
 function fill_H_ε!(H, the_model::BH_Model)
@@ -104,9 +120,11 @@ function fill_H_ε!(H, the_model::BH_Model)
         end
 
     end
+    true
+
 end
 
-function give_index_cr_and_an_2times(states::Vector{String}, label::Int, i::Int, Lp::Int, N::Int)
+@memoize function give_index_cr_and_an_2times(states::Vector{String}, label::Int, i::Int, Lp::Int, N::Int)
     the_state_s = states[label]
     i_num = num_of_position(the_state_s[end - i + 1], Lp)
     index_1 , v1, index_2, v2 = 0, 0.0, 0, 0.0
@@ -141,4 +159,15 @@ end
     end
     # println("($i, $j)") #debug
     i, j
+end
+
+# 求特征向量的粒子数
+function give_the_num_of_particles_of_eigvector(vec::Vector{Float64}, the_model::BH_Model)
+    probability = vec.^2
+    nhil = length(the_model.states)
+    num_of_p = Array{Float64}(undef, nhil)
+    for i in 1:nhil
+        num_of_p[i] = total_num_particle(the_model.states[i], the_model.N, the_model.Lp)
+    end
+    sum(probability .* num_of_p)
 end
