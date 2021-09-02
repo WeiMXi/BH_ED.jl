@@ -31,9 +31,10 @@ julia> sol = BH_solver()
 - We get Hamiltonion Matrix.
 - Number of nonzero elements: 584 (8.901%) of total.
 - Hamiltonion Matrix is a Real Symmetric Matrix.
+- Strat to calculate the correlation function.
 - Ground energy is -7.456060433500101
 - The corresponding number of particles is 3.661445670989614
-- Then We will return the eigenvalue, the corresponding eigenvector and the number of particles
+- Then We will return the eigenvalue, the corresponding eigenvector, the number of particles and the correlation function(as your setting).
 ([-7.456060433500098], [[0.04471760208007585, 1.079388233139614e-15, 1.122697968763188e-14, 5.378240580013517e-15, 1.6121294637898837e-15, 0.11788076158415632, 0.14679011111052417, 0.11788076158412045, 0.1524090635246442, 0.1467901111105383  …  0.05177177698781338, 0.05748632669029057, 0.03729158070076383, 0.051771776987840815, 0.03729158070074095, -5.838749250828237e-15, -3.122235738324105e-15, -4.5878852590447294e-15, -7.327893030091186e-15, 0.005421268027986857]], 3.661445670989615, [1.394246146628383, 0.6185477407236198, 0.9107890892570526, 0.6185477407236198, 1.394246146628383])
 
 julia> sol[1]   # the eigenvaluse

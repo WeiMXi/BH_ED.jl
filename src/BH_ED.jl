@@ -210,7 +210,7 @@ function BH_solver(;N::Int      = 4
 
     cf_r = fill(NaN64, the_bhm.N + 1)
     bool_cf && begin
-        screen_p && println("Strat to calculate the correlation function.")
+        screen_p && println("- Strat to calculate the correlation function.")
         cf_r .= c_ff(the_bhm, eigsol[2][1])
     end 
     
