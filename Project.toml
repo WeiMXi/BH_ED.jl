@@ -10,7 +10,6 @@ Memoize = "c03570c3-d221-55d1-a50c-7939bbd78826"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [compat]
-KrylovKit = "0.5"
 julia = "1"
 
 [extras]
