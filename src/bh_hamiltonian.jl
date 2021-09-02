@@ -177,3 +177,40 @@ function give_the_num_of_particles_of_eigvector(vec::Vector{Float64}, the_model:
     end
     sum(probability .* num_of_p)
 end
+
+function c_ff(the_model::BH_Model, vec::Vector{Float64})
+
+    # 周期性边界条件
+    pbc = Array{Int}(undef, 2*the_model.N)
+    pbc[1:the_model.N] .= [i for i in 1:the_model.N]
+    pbc[1 + the_model.N:end] .= [i for i in 1:the_model.N]
+
+    # 希尔伯特空间维数
+    nhil = length(the_model.states)
+
+    # 大矩阵
+    mat = Array{Float64}(undef, nhil, nhil)
+
+    # 关联函数计算结果存放
+    result = Array{Float64}(undef, the_model.N + 1)
+
+    # 开始计算关联函数
+    for r0 in 0:the_model.N-1
+        # 置零
+        mat .= 0.0
+        for j in 1:nhil
+            the_sum = 0.0
+            for i in 1:the_model.N
+                # 周期性边界条件
+                x, y = i, pbc[i + r0]
+                the_sum = the_sum + num_of_position(the_model.states[j][x], the_model.Lp)*num_of_position(the_model.states[j][y], the_model.Lp)
+            end
+            mat[j, j] = mat[j, j] + the_sum
+        end
+        result[r0 + 1] = vec' * mat * vec
+    end
+
+    result[end] = result[1]
+
+    result ./ the_model.N
+end

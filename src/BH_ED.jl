@@ -161,6 +161,7 @@ end
               , V::Float64    = 1.0
               , ε::Float64    = 1.0
               , screen_p::Bool= true 
+              , bool_cf::Bool = true
                     )
 
 定义并求解 Bose–Hubbard model, 返回最小特征值与对应的特征向量
@@ -173,6 +174,7 @@ end
 - `Lp::Int`: 每个格点最大容纳粒子数
 - `L::Int`: 最多粒子数考虑 所有 0 到 L 个粒子的模型；最大可设置为 Lp*N
 - `screen_p::Bool`: 是否屏幕打印信息
+- `bool_cf::Bool`: 是否计算关联函数
 
 """
 function BH_solver(;N::Int      = 4
@@ -183,8 +185,9 @@ function BH_solver(;N::Int      = 4
                 , J::Float64    = 1.0
                 , V::Float64    = 1.0
                 , ε::Float64    = 1.0
-                , screen_p::Bool= true 
-    )::Tuple{Vector{Float64}, Vector{Vector{Float64}}, Float64}
+                , screen_p::Bool= true
+                , bool_cf::Bool = true
+    )::Tuple{ Vector{Float64}, Vector{Vector{Float64}}, Float64, Vector{Float64} }
 
     the_bhm = give_a_BH_Model(N = N, Lp = Lp, L = L, μ = μ, U = U, J = J, V = V, ε = ε)
     screen_p && println("- N: $(the_bhm.N) with Lp: $(the_bhm.Lp)")
@@ -204,10 +207,18 @@ function BH_solver(;N::Int      = 4
     end
     eigsol = eigsolve(H, 1, :SR, eager = true)
     n_ev = give_the_num_of_particles_of_eigvector(eigsol[2][1], the_bhm)
+
+    cf_r = fill(NaN64, the_bhm.N + 1)
+    bool_cf && begin
+        screen_p && println("Strat to calculate the correlation function.")
+        cf_r .= c_ff(the_bhm, eigsol[2][1])
+    end 
+    
     screen_p && println("- Ground energy is $(eigsol[1][1])")
     screen_p && println("- The corresponding number of particles is $n_ev")
-    screen_p && println("- Then We will return the eigenvalue, the corresponding eigenvector and the number of particles")
-    eigsol[1], eigsol[2], n_ev
+    screen_p && println("- Then We will return the eigenvalue, the corresponding eigenvector, the number of particles and the correlation function(as your setting).")
+
+    eigsol[1], eigsol[2], n_ev, cf_r
     # H
 end
 
